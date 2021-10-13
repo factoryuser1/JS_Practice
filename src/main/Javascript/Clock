@@ -1,0 +1,181 @@
+class Clock {
+
+    constructor(time = {hours: 0, minutes: 0, seconds: 0}) {
+        // this.time = time || {hours: 0, minutes: 0, seconds: 0};
+        this.time = time;
+
+        if (this.time.hours < 0 || this.time.hours > 23) this.time.hours = 0;
+        if (this.time.minutes < 0 || this.time.minutes > 59) this.time.minutes = 0;
+        if (this.time.seconds < 0 || this.time.seconds > 59) this.time.seconds = 0;
+
+        [this._hours, this._minutes, this._seconds] = [this.time.hours || 0, this.time.minutes || 0, this.time.seconds || 0];
+
+        // this._hours = this.time.hours || 0;
+        // this._minutes = this.time.minutes || 0;
+        // this._seconds = this.time.seconds || 0;
+    }
+
+    get hours() {
+        return this._hours;
+    }
+
+    set hours(hours) {
+        if (hours < 0 || hours > 23) this._hours = 0;
+        else this._hours = hours;
+    }
+
+    get minutes() {
+        return this._minutes;
+    }
+
+    set minutes(minutes) {
+        if (minutes < 0 || minutes > 60) this._minutes = 0;
+        else this._minutes = minutes;
+    }
+
+    get seconds() {
+        return this._seconds;
+    }
+
+    set seconds(seconds) {
+        if (seconds < 0 || seconds > 60) this._seconds = 0;
+        else this._seconds = seconds;
+    }
+
+    currentTime() {
+        let hoursString = this.hours.toString();
+        let minutesString = this.minutes.toString();
+        let secondsString = this.seconds.toString();
+
+        hoursString = hoursString.padStart(2, "0");
+        minutesString = minutesString.padStart(2, "0");
+        secondsString = secondsString.padStart(2, "0");
+
+        // if (hoursString.length < 2){
+        //     hoursString = `0${this.hours}`;
+        //     // hoursString.padStart(2, "0");
+        // }
+        // if (minutesString.length < 2){
+        //     minutesString = `0${this.minutes}`;
+        // }
+        // if (secondsString.length < 2){
+        //     secondsString = `0${this.seconds}`;
+        // }
+
+        return `${hoursString}:${minutesString}:${secondsString}`;
+    }
+
+    tick() {
+        this.seconds += 1;
+
+        if (this.seconds === 60) {
+            this.minutes += 1;
+            this.seconds = 0;
+        }
+        if (this.minutes === 60) {
+            this.minutes = 0;
+            this.hours += 1;
+        }
+        if (this.hours === 24) {
+            this.hours = 0;
+            this.minutes = 0;
+            this.seconds = 0;
+        }
+        return this;
+    }
+}
+
+class DigitalClock extends Clock {
+    constructor(time) {
+        super(time);
+        this.format = "24-hour format";
+        this.alarms = [];
+    }
+
+    toggleFormat() {
+        this.format = (this.format === "24-hour format") ? "12-hour format" : "24-hour format";
+
+    }
+
+    currentTime() {
+        if ("24-hour format" === this.format) {
+            return super.currentTime();
+        } else if ("12-hour format" === this.format) {
+            if (this.hours > 12) {
+                this.hours -= 12;
+                return `${super.currentTime()} PM`;
+            }
+            if (this.hours < 12) {
+                return `${super.currentTime()} AM`;
+            }
+            if (this.hours === 12) {
+                return `${super.currentTime()} PM`;
+            }
+        }
+    }
+
+    setAlarm(time) {
+        let alarmHours, alarmMinutes, alarmSeconds;
+        [alarmHours, alarmMinutes, alarmSeconds] = [time.hours || 0, time.minutes || 0, time.seconds || 0];
+        // let alarmHours = time.hours || 0;
+        // let alarmMinutes = time.minutes || 0;
+        // let alarmSeconds = time.seconds || 0;
+        this.alarms.push({hours: alarmHours, minutes: alarmMinutes, seconds: alarmSeconds});
+    }
+
+    tick() {
+        super.tick();
+        for (let i = 0; i < this.alarms.length; i++) {
+            if (this.hours === this.alarms[i].hours && this.minutes === this.alarms[i].minutes && this.seconds === this.alarms[i].seconds) {
+                console.log("ALARM");
+            }
+        }
+    }
+}
+
+const clock = new DigitalClock({hours: 12, seconds: 59});
+console.log(clock.format);
+console.log(clock.currentTime());
+clock.toggleFormat();
+console.log(clock.format);
+
+clock.setAlarm({hours: 13})
+clock.tick() // console.log('ALARM') x2
+console.log(clock.currentTime());
+
+// clock.toggleFormat();
+// clock.tick();
+// console.log(clock.currentTime());
+
+
+// const clock = new DigitalClock({ hours: 6, minutes: 29, seconds: 59 })
+// clock.setAlarm({ hours: 6, minutes: 30 })
+// clock.tick() // console.log('ALARM')
+
+// const dc = new DigitalClock({hours: 12, minutes: 50, seconds: 45})
+// console.log(dc.format);
+// dc.toggleFormat();
+// console.log(dc.format);
+// console.log(dc.currentTime())
+// const testClock = new Clock();
+// testClock.hours = 1;
+// testClock.minutes = 999999;
+// testClock.seconds = 2304928345239458;
+//
+// console.log(testClock.currentTime());
+// console.log(testClock.currentTime());
+// console.log(testClock.currentTime());
+// console.log(testClock.hours);
+// console.log(testClock.minutes);
+
+// const testClock2 = new Clock({hours: 16});
+// console.log(testClock2.currentTime());
+
+// const testClock3 = new Clock({hours: 23, seconds: 59});
+// testClock3.minutes = 999999;
+// console.log(testClock3.currentTime());
+// testClock3.tick();
+// console.log(testClock3.currentTime());
+//
+// testClock.tick().tick().tick();
+// console.log(testClock.currentTime());
